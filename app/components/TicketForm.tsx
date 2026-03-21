@@ -12,7 +12,7 @@ export default function TicketForm() {
     e.preventDefault();
 
     try {
-      const res = await fetch("https://ticketing-backend-i02l.onrender.com", {
+      const res = await fetch("https://ticketing-backend-i02l.onrender.com/tickets", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
