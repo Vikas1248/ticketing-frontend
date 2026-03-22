@@ -3,8 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+type Ticket = {
+  id: number;
+  title: string;
+  description: string;
+  email: string;
+  status: string;
+};
+
 export default function Dashboard() {
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const router = useRouter();
 
   // 🔐 Protect route
@@ -25,7 +33,7 @@ export default function Dashboard() {
     fetchTickets();
   }, []);
 
-  const updateStatus = async (id, status) => {
+  const updateStatus = async (id: number, status: string) => {
     await fetch(
       `https://ticketing-backend-i02l.onrender.com/tickets/${id}?status=${status}`,
       {
@@ -61,7 +69,7 @@ export default function Dashboard() {
         </thead>
 
         <tbody>
-          {tickets.map((ticket) => (
+          {tickets.map((ticket: Ticket) => (
             <tr key={ticket.id} className="border text-center">
               <td>{ticket.title}</td>
               <td>{ticket.email}</td>
