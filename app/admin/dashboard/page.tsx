@@ -15,16 +15,31 @@ export default function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const router = useRouter();
 
-  // 🔐 Protect route
+  // 🔐 Protect route (JWT based)
   useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin");
-    if (!isAdmin) {
+    const token = localStorage.getItem("token");
+    if (!token) {
       router.push("/admin/login");
     }
   }, []);
 
   const fetchTickets = async () => {
-    const res = await fetch("https://ticketing-backend-i02l.onrender.com/tickets");
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      "https://ticketing-backend-i02l.onrender.com/tickets",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // 🔐 IMPORTANT
+        },
+      }
+    );
+
+    if (!res.ok) {
+      router.push("/admin/login");
+      return;
+    }
+
     const data = await res.json();
     setTickets(data);
   };
@@ -34,21 +49,28 @@ export default function Dashboard() {
   }, []);
 
   const updateStatus = async (id: number, status: string) => {
+    const token = localStorage.getItem("token");
+
     await fetch(
       `https://ticketing-backend-i02l.onrender.com/tickets/${id}?status=${status}`,
       {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`, // 🔐 IMPORTANT
+        },
       }
     );
+
     fetchTickets();
   };
 
   return (
     <div className="p-6">
-      {/* 🔴 Logout button */}
+      {/* 🔴 Logout */}
       <button
         onClick={() => {
-          localStorage.removeItem("isAdmin");
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
           router.push("/admin/login");
         }}
         className="mb-4 bg-red-500 text-white px-4 py-2"
@@ -56,7 +78,7 @@ export default function Dashboard() {
         Logout
       </button>
 
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
       <table className="w-full border">
         <thead>
@@ -74,7 +96,6 @@ export default function Dashboard() {
               <td>{ticket.title}</td>
               <td>{ticket.email}</td>
 
-              {/* ✅ Colored status */}
               <td>
                 <span
                   className={
