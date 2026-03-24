@@ -1,23 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
-{tickets.map((t: any) => (
-  <Link key={t.id} href={`/tickets/${t.id}`}>
-    <div className="border p-3 mb-2 cursor-pointer">
-      {t.title}
-    </div>
-  </Link>
-))}
-
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("https://ticketing-backend-i02l.onrender.com/tickets")
+    const token = localStorage.getItem("token");
+
+    fetch("https://ticketing-backend-i02l.onrender.com/tickets", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         setTickets(data);
@@ -30,8 +28,8 @@ export default function TicketsPage() {
       });
   }, []);
 
-  if (loading) return <p>Loading tickets...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className="p-6">Loading tickets...</p>;
+  if (error) return <p className="p-6">{error}</p>;
 
   return (
     <main className="p-10">
@@ -40,11 +38,13 @@ export default function TicketsPage() {
       {tickets.length === 0 && <p>No tickets found</p>}
 
       {tickets.map((t: any) => (
-        <div key={t.id} className="border p-4 mb-2 rounded">
-          <h2 className="font-semibold">{t.title}</h2>
-          <p>{t.description}</p>
-          <p className="text-sm text-gray-500">{t.email}</p>
-        </div>
+        <Link key={t.id} href={`/tickets/${t.id}`}>
+          <div className="border p-4 mb-2 rounded cursor-pointer hover:bg-gray-100">
+            <h2 className="font-semibold">{t.title}</h2>
+            <p>{t.description}</p>
+            <p className="text-sm text-gray-500">{t.email}</p>
+          </div>
+        </Link>
       ))}
     </main>
   );
