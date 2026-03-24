@@ -1,6 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 
+import Link from "next/link";
+
+{tickets.map((t: any) => (
+  <Link key={t.id} href={`/tickets/${t.id}`}>
+    <div className="border p-3 mb-2 cursor-pointer">
+      {t.title}
+    </div>
+  </Link>
+))}
+
 export default function TicketsPage() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
