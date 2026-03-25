@@ -8,25 +8,30 @@ export default function TicketsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+useEffect(() => {
+  if (typeof window === "undefined") return;  // ✅ SSR safety
 
-    fetch("https://ticketing-backend-i02l.onrender.com/tickets", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const token = localStorage.getItem("token");
+
+  fetch("https://ticketing-backend-i02l.onrender.com/tickets", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("API failed"); // ✅ better handling
+      return res.json();
     })
-      .then((res) => res.json())
-      .then((data) => {
-        setTickets(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Failed to load tickets");
-        setLoading(false);
-      });
-  }, []);
+    .then((data) => {
+      setTickets(data);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error(err);
+      setError("Failed to load tickets");
+      setLoading(false);
+    });
+}, []);
 
   if (loading) return <p className="p-6">Loading tickets...</p>;
   if (error) return <p className="p-6">{error}</p>;

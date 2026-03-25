@@ -10,33 +10,48 @@ export default function TicketDetail() {
   const [comments, setComments] = useState<any[]>([]);
   const [message, setMessage] = useState("");
 
-  const token = localStorage.getItem("token");
+  const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
 
-  // ✅ Fetch ticket
-  const fetchTicket = async () => {
-    const res = await fetch("http://127.0.0.1:8000/tickets", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    const t = data.find((t: any) => t.id == id);
-    setTicket(t);
-  };
+  useEffect(() => {
+    if (typeof window === "undefined") return; // ✅ SSR fix
 
-  // ✅ Fetch comments
-  const fetchComments = async () => {
-    const res = await fetch(
-      `http://127.0.0.1:8000/tickets/${id}/comments`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
+    const token = localStorage.getItem("token");
+
+    const fetchData = async () => {
+      try {
+        // ✅ Fetch tickets
+        const res = await fetch(`${BASE_URL}/tickets`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        const t = data.find((t: any) => t.id == id);
+        setTicket(t);
+
+        // ✅ Fetch comments
+        const cRes = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const cData = await cRes.json();
+        setComments(cData);
+      } catch (err) {
+        console.error(err);
       }
-    );
-    const data = await res.json();
-    setComments(data);
-  };
+    };
+
+    fetchData();
+  }, [id]);
 
   // ✅ Add comment
   const addComment = async () => {
-    await fetch(`http://127.0.0.1:8000/tickets/${id}/comments`, {
+    const token = localStorage.getItem("token");
+
+    await fetch(`${BASE_URL}/tickets/${id}/comments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,13 +61,16 @@ export default function TicketDetail() {
     });
 
     setMessage("");
-    fetchComments();
-  };
 
-  useEffect(() => {
-    fetchTicket();
-    fetchComments();
-  }, []);
+    // Refresh comments
+    const res = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    setComments(data);
+  };
 
   if (!ticket) return <div className="p-6">Loading...</div>;
 
