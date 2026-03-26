@@ -13,21 +13,25 @@ export default function TicketDetail() {
 
   const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
 
-  // ✅ AI Reply function (CORRECT PLACE)
+  // 🤖 AI Reply
   const generateAIReply = async () => {
     setAiLoading(true);
 
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`${BASE_URL}/tickets/${id}/ai-reply`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const res = await fetch(`${BASE_URL}/tickets/${id}/ai-reply`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = await res.json();
-    setMessage(data.reply);
+      const data = await res.json();
+      setMessage(data.reply);
+    } catch (err) {
+      console.error("AI error:", err);
+    }
 
     setAiLoading(false);
   };
@@ -67,7 +71,7 @@ export default function TicketDetail() {
     fetchData();
   }, [id]);
 
-  // Add comment
+  // ➕ Add Comment
   const addComment = async () => {
     const token = localStorage.getItem("token");
 
@@ -102,7 +106,7 @@ export default function TicketDetail() {
         <h2 className="text-xl font-bold">{ticket.title}</h2>
         <p className="mt-2">{ticket.description}</p>
 
-        <div className="mt-4">
+        <div className="mt-4 space-y-1 text-sm">
           <p><b>Status:</b> {ticket.status}</p>
           <p><b>Priority:</b> {ticket.priority}</p>
           <p><b>Email:</b> {ticket.email}</p>
@@ -116,24 +120,28 @@ export default function TicketDetail() {
         {/* 🤖 AI BUTTON */}
         <button
           onClick={generateAIReply}
-          className="bg-purple-600 text-white px-3 py-2 rounded-lg mb-2 hover:bg-purple-700"
+          className="bg-purple-600 text-white px-3 py-2 rounded-lg mb-2 hover:bg-purple-700 flex items-center gap-2"
         >
+          {aiLoading && (
+            <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+          )}
           {aiLoading ? "Generating..." : "🤖 Generate AI Reply"}
         </button>
 
+        {/* Comments List */}
         <div className="flex-1 overflow-y-auto space-y-2">
           {comments.map((c, i) => (
-            <div key={i} className="bg-gray-100 p-2 rounded">
+            <div key={i} className="bg-blue-50 p-2 rounded text-sm">
               {c.message}
             </div>
           ))}
         </div>
 
-        {/* Add comment */}
+        {/* Add Comment */}
         <div className="mt-3 flex gap-2">
           <input
             className="border p-2 flex-1 rounded"
-            placeholder="Type a message..."
+            placeholder="🤖 AI suggested reply will appear here..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
@@ -144,6 +152,14 @@ export default function TicketDetail() {
             Send
           </button>
         </div>
+
+        {/* 🔁 Regenerate */}
+        <button
+          onClick={generateAIReply}
+          className="text-xs text-purple-600 mt-1 text-left"
+        >
+          🔁 Regenerate AI Reply
+        </button>
       </div>
     </div>
   );
