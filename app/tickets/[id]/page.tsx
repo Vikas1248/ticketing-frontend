@@ -9,17 +9,37 @@ export default function TicketDetail() {
   const [ticket, setTicket] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [message, setMessage] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
 
   const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
 
+  // ✅ AI Reply function (CORRECT PLACE)
+  const generateAIReply = async () => {
+    setAiLoading(true);
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${BASE_URL}/tickets/${id}/ai-reply`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    setMessage(data.reply);
+
+    setAiLoading(false);
+  };
+
   useEffect(() => {
-    if (typeof window === "undefined") return; // ✅ SSR fix
+    if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
 
     const fetchData = async () => {
       try {
-        // ✅ Fetch tickets
+        // Fetch ticket
         const res = await fetch(`${BASE_URL}/tickets`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -30,7 +50,7 @@ export default function TicketDetail() {
         const t = data.find((t: any) => t.id == id);
         setTicket(t);
 
-        // ✅ Fetch comments
+        // Fetch comments
         const cRes = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -47,7 +67,7 @@ export default function TicketDetail() {
     fetchData();
   }, [id]);
 
-  // ✅ Add comment
+  // Add comment
   const addComment = async () => {
     const token = localStorage.getItem("token");
 
@@ -62,12 +82,12 @@ export default function TicketDetail() {
 
     setMessage("");
 
-    // Refresh comments
     const res = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
     const data = await res.json();
     setComments(data);
   };
@@ -92,6 +112,14 @@ export default function TicketDetail() {
       {/* RIGHT: Comments */}
       <div className="border p-4 rounded-xl shadow flex flex-col">
         <h3 className="text-lg font-bold mb-3">Comments</h3>
+
+        {/* 🤖 AI BUTTON */}
+        <button
+          onClick={generateAIReply}
+          className="bg-purple-600 text-white px-3 py-2 rounded-lg mb-2 hover:bg-purple-700"
+        >
+          {aiLoading ? "Generating..." : "🤖 Generate AI Reply"}
+        </button>
 
         <div className="flex-1 overflow-y-auto space-y-2">
           {comments.map((c, i) => (
