@@ -11,6 +11,10 @@ export default function TicketDetail() {
   const [message, setMessage] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
+  const [aiPriority, setAiPriority] = useState<string | null>(null);
+  const [aiCategory, setAiCategory] = useState<string | null>(null);
+  const [classifyLoading, setClassifyLoading] = useState(false);
+
   const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
 
   // 🤖 AI Reply
@@ -30,10 +34,42 @@ export default function TicketDetail() {
       const data = await res.json();
       setMessage(data.reply);
     } catch (err) {
-      console.error("AI error:", err);
+      console.error(err);
     }
 
     setAiLoading(false);
+  };
+
+  // 🧠 AI Classification
+  const classifyTicket = async () => {
+    setClassifyLoading(true);
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${BASE_URL}/tickets/${id}/classify`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      setAiCategory(data.category);
+      setAiPriority(data.priority);
+
+      // update UI instantly
+      setTicket((prev: any) => ({
+        ...prev,
+        category: data.category,
+        priority: data.priority,
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+
+    setClassifyLoading(false);
   };
 
   useEffect(() => {
@@ -43,22 +79,16 @@ export default function TicketDetail() {
 
     const fetchData = async () => {
       try {
-        // Fetch ticket
         const res = await fetch(`${BASE_URL}/tickets`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = await res.json();
         const t = data.find((t: any) => t.id == id);
         setTicket(t);
 
-        // Fetch comments
         const cRes = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const cData = await cRes.json();
@@ -71,7 +101,6 @@ export default function TicketDetail() {
     fetchData();
   }, [id]);
 
-  // ➕ Add Comment
   const addComment = async () => {
     const token = localStorage.getItem("token");
 
@@ -87,9 +116,7 @@ export default function TicketDetail() {
     setMessage("");
 
     const res = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     const data = await res.json();
@@ -101,26 +128,35 @@ export default function TicketDetail() {
   return (
     <div className="p-6 grid grid-cols-2 gap-6">
       
-      {/* LEFT: Ticket Info */}
+      {/* LEFT */}
       <div className="border p-4 rounded-xl shadow">
         <h2 className="text-xl font-bold">{ticket.title}</h2>
         <p className="mt-2">{ticket.description}</p>
 
-        <div className="mt-4 space-y-1 text-sm">
+        <div className="mt-4 text-sm space-y-1">
           <p><b>Status:</b> {ticket.status}</p>
           <p><b>Priority:</b> {ticket.priority}</p>
+          <p><b>Category:</b> {ticket.category}</p>
           <p><b>Email:</b> {ticket.email}</p>
         </div>
+
+        {/* 🧠 CLASSIFY BUTTON */}
+        <button
+          onClick={classifyTicket}
+          className="bg-green-600 text-white px-3 py-2 rounded-lg mt-4 hover:bg-green-700"
+        >
+          {classifyLoading ? "Analyzing..." : "🧠 Classify Ticket"}
+        </button>
       </div>
 
-      {/* RIGHT: Comments */}
+      {/* RIGHT */}
       <div className="border p-4 rounded-xl shadow flex flex-col">
         <h3 className="text-lg font-bold mb-3">Comments</h3>
 
-        {/* 🤖 AI BUTTON */}
+        {/* 🤖 AI Reply */}
         <button
           onClick={generateAIReply}
-          className="bg-purple-600 text-white px-3 py-2 rounded-lg mb-2 hover:bg-purple-700 flex items-center gap-2"
+          className="bg-purple-600 text-white px-3 py-2 rounded-lg mb-2 flex items-center gap-2"
         >
           {aiLoading && (
             <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
@@ -128,7 +164,7 @@ export default function TicketDetail() {
           {aiLoading ? "Generating..." : "🤖 Generate AI Reply"}
         </button>
 
-        {/* Comments List */}
+        {/* Comments */}
         <div className="flex-1 overflow-y-auto space-y-2">
           {comments.map((c, i) => (
             <div key={i} className="bg-blue-50 p-2 rounded text-sm">
@@ -137,7 +173,7 @@ export default function TicketDetail() {
           ))}
         </div>
 
-        {/* Add Comment */}
+        {/* Input */}
         <div className="mt-3 flex gap-2">
           <input
             className="border p-2 flex-1 rounded"
