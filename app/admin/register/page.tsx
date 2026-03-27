@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import React from "react";
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       const res = await fetch(
-        "https://ticketing-backend-i02l.onrender.com/login",
+        "https://ticketing-backend-i02l.onrender.com/register",
         {
           method: "POST",
           headers: {
@@ -31,13 +31,11 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ store JWT + role
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("role", data.role);
-
         router.push("/admin/dashboard");
       } else {
-        alert(data.detail || "Invalid credentials");
+        alert(data.detail || "Registration failed");
       }
     } catch (error) {
       console.error(error);
@@ -47,8 +45,8 @@ export default function Login() {
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <form onSubmit={handleLogin} className="border p-6 rounded w-80">
-        <h2 className="text-xl font-bold mb-4">Login</h2>
+      <form onSubmit={handleRegister} className="border p-6 rounded w-80">
+        <h2 className="text-xl font-bold mb-4">Register</h2>
 
         <input
           className="w-full mb-3 p-2 border"
@@ -65,13 +63,13 @@ export default function Login() {
         />
 
         <button className="w-full bg-black text-white p-2">
-          Login
+          Register
         </button>
 
         <div className="mt-4 text-sm text-center">
-          New here?{' '}
-          <Link href="/admin/register" className="underline">
-            Register with email
+          Already have an account?{' '}
+          <Link href="/admin/login" className="underline">
+            Login
           </Link>
         </div>
       </form>
