@@ -1,107 +1,112 @@
+"use client";
+
 import Link from "next/link";
 import TicketForm from "./components/TicketForm";
 
 export default function Home() {
   return (
-    <main className="bg-slate-950 text-white">
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.24),_transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(168,85,247,0.2),_transparent_30%)]" />
-        <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-24">
-          <div className="max-w-3xl">
-            <span className="inline-flex rounded-full bg-sky-300/15 px-4 py-1 text-sm font-semibold uppercase tracking-[0.34em] text-sky-300">
-              AI-powered support
-            </span>
-            <h1 className="mt-6 text-5xl font-semibold tracking-tight text-white sm:text-6xl">
-              Smarter ticketing for teams that respond faster.
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-slate-300">
-              Centralize requests, automate responses with AI, and keep every conversation moving toward resolution.
+    <main className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+          <aside className="rounded-[2rem] border border-white/10 bg-slate-900/75 p-6 shadow-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-sky-400">
+              Landing dashboard
             </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Link href="/tickets" className="inline-flex items-center justify-center rounded-full bg-sky-500 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:bg-sky-400">
-                Browse tickets
-              </Link>
-              <Link href="/admin/login" className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-8 py-4 text-sm font-semibold text-white transition hover:bg-white/20">
-                Admin login
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+            <h2 className="mt-5 text-3xl font-semibold text-white">
+              Quick overview
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-slate-400">
+              A compact left panel for your metrics, navigation, and support actions.
+            </p>
 
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-            <h3 className="text-xl font-semibold text-white">Fast ticket creation</h3>
-            <p className="mt-3 text-sm text-slate-300">
-              Capture issue details quickly and route tickets to the right team instantly.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-            <h3 className="text-xl font-semibold text-white">AI reply suggestions</h3>
-            <p className="mt-3 text-sm text-slate-300">
-              Use automated suggestions to draft responses faster and keep customers informed.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-            <h3 className="text-xl font-semibold text-white">Team collaboration</h3>
-            <p className="mt-3 text-sm text-slate-300">
-              Add notes, share comment threads, and resolve issues with full visibility.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white text-slate-950">
-        <div className="mx-auto max-w-6xl px-6 py-16">
-          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-500">Live demo</p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
-                Start tickets with smarter context and immediate visibility.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-slate-600">
-                The platform keeps request details, requester email, and ticket status in one place so your support team can move faster without missing anything.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900">
-                  AI ticket insights
-                </span>
-                <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900">
-                  Status automation
-                </span>
+            <div className="mt-8 space-y-4">
+              <div className="rounded-3xl bg-slate-950/80 p-4 border border-white/10">
+                <p className="text-sm text-slate-400">Open tickets</p>
+                <p className="mt-2 text-2xl font-semibold text-white">12</p>
+              </div>
+              <div className="rounded-3xl bg-slate-950/80 p-4 border border-white/10">
+                <p className="text-sm text-slate-400">AI suggestions</p>
+                <p className="mt-2 text-2xl font-semibold text-white">4</p>
+              </div>
+              <div className="rounded-3xl bg-slate-950/80 p-4 border border-white/10">
+                <p className="text-sm text-slate-400">Resolved today</p>
+                <p className="mt-2 text-2xl font-semibold text-white">8</p>
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8 shadow-lg">
-              <h3 className="text-xl font-semibold text-slate-900">Create a ticket now</h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Fill in the ticket details below and see how easy it is to capture support issues.
-              </p>
+            <div className="mt-10 grid gap-3">
+              <Link href="/tickets" className="rounded-2xl bg-sky-500 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-sky-400">
+                Browse tickets
+              </Link>
+              <Link href="/admin/login" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-white/10">
+                Admin login
+              </Link>
+            </div>
+          </aside>
+
+          <section className="space-y-6">
+            <div className="rounded-[2rem] border border-white/10 bg-slate-900/80 p-8 shadow-xl">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.28em] text-sky-400">
+                    Welcome back
+                  </p>
+                  <h1 className="mt-4 text-4xl font-semibold text-white sm:text-5xl">
+                    Simplified support, now in two panels.
+                  </h1>
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-400">
+                    The left panel holds metrics and quick links, while the top panel delivers status, actions, and ticket creation.
+                  </p>
+                </div>
+                <div className="rounded-3xl bg-slate-950/90 p-5 text-sm text-slate-300">
+                  <p className="font-semibold text-white">Today</p>
+                  <p className="mt-3">8 new tickets</p>
+                  <p className="mt-1">2 responses pending</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-2">
+              <div className="rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 shadow-xl">
+                <h2 className="text-lg font-semibold text-white">Why this layout?</h2>
+                <p className="mt-4 text-sm leading-6 text-slate-400">
+                  A compact left panel keeps navigation and KPIs visible, while the wide top panel keeps your next action front and center.
+                </p>
+                <ul className="mt-6 space-y-3 text-sm text-slate-300">
+                  <li>• Clear metrics at a glance</li>
+                  <li>• Direct access to tickets and admin</li>
+                  <li>• Fast ticket creation without clutter</li>
+                </ul>
+              </div>
+              <div className="rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 shadow-xl">
+                <h2 className="text-lg font-semibold text-white">Next steps</h2>
+                <p className="mt-4 text-sm leading-6 text-slate-400">
+                  Keep this landing page neat and let users dive into ticket details using built-in support workflows.
+                </p>
+                <div className="mt-6 space-y-3 text-sm text-slate-300">
+                  <p>• Start with a new ticket below.</p>
+                  <p>• Browse current tickets fast.</p>
+                  <p>• Use AI suggestions to reply faster.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-slate-50 p-8 shadow-xl text-slate-950">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold">Create a support ticket</h2>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Quickly capture an issue and keep support moving with the same dashboard experience.
+                  </p>
+                </div>
+              </div>
               <div className="mt-6">
                 <TicketForm />
               </div>
             </div>
-          </div>
+          </section>
         </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500"><span className="text-sky-500">AI</span></p>
-            <h3 className="mt-3 text-2xl font-semibold text-slate-950">Automated responses</h3>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">Business</p>
-            <h3 className="mt-3 text-2xl font-semibold text-slate-950">Team friendly</h3>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">Launch</p>
-            <h3 className="mt-3 text-2xl font-semibold text-slate-950">Ready to use</h3>
-          </div>
-        </div>
-      </section>
+      </div>
     </main>
   );
 }
