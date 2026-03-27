@@ -89,10 +89,6 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">99%</p>
-            <h3 className="mt-3 text-2xl font-semibold text-slate-950">Resolution rate</h3>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500"><span className="text-sky-500">AI</span></p>
             <h3 className="mt-3 text-2xl font-semibold text-slate-950">Automated responses</h3>
           </div>
