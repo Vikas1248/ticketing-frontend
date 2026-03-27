@@ -13,6 +13,7 @@ type Ticket = {
 
 export default function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   // 🔐 Protect route (JWT based)
@@ -25,28 +26,44 @@ export default function Dashboard() {
 
   const fetchTickets = async () => {
     const token = localStorage.getItem("token");
+    setLoading(true);
 
-    const res = await fetch(
-      "https://ticketing-backend-i02l.onrender.com/tickets",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // 🔐 IMPORTANT
-        },
+    try {
+      const res = await fetch(
+        "https://ticketing-backend-i02l.onrender.com/tickets",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // 🔐 IMPORTANT
+          },
+        }
+      );
+
+      if (!res.ok) {
+        router.push("/admin/login");
+        return;
       }
-    );
 
-    if (!res.ok) {
+      const data = await res.json();
+      setTickets(data);
+    } catch (error) {
+      console.error(error);
       router.push("/admin/login");
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    const data = await res.json();
-    setTickets(data);
   };
 
   useEffect(() => {
     fetchTickets();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <p className="text-sm text-slate-600">Loading tickets…</p>
+      </div>
+    );
+  }
 
   const updateStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("token");
@@ -79,6 +96,12 @@ export default function Dashboard() {
       </button>
 
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+
+      {!tickets.length ? (
+        <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          No tickets found yet. When a ticket is created, it will appear here.
+        </div>
+      ) : null}
 
       <table className="w-full border">
         <thead>
