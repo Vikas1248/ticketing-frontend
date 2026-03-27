@@ -3,200 +3,207 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
+
 export default function TicketDetail() {
   const { id } = useParams();
 
   const [ticket, setTicket] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [message, setMessage] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
-
-  const [aiPriority, setAiPriority] = useState<string | null>(null);
-  const [aiCategory, setAiCategory] = useState<string | null>(null);
-  const [classifyLoading, setClassifyLoading] = useState(false);
-
-  const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
-
-  // 🤖 AI Reply
-  const generateAIReply = async () => {
-    setAiLoading(true);
-
-    const token = localStorage.getItem("token");
-
-    try {
-      const res = await fetch(`${BASE_URL}/tickets/${id}/ai-reply`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-      setMessage(data.reply);
-    } catch (err) {
-      console.error(err);
-    }
-
-    setAiLoading(false);
-  };
-
-  // 🧠 AI Classification
-  const classifyTicket = async () => {
-    setClassifyLoading(true);
-
-    const token = localStorage.getItem("token");
-
-    try {
-      const res = await fetch(`${BASE_URL}/tickets/${id}/classify`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-
-      setAiCategory(data.category);
-      setAiPriority(data.priority);
-
-      // update UI instantly
-      setTicket((prev: any) => ({
-        ...prev,
-        category: data.category,
-        priority: data.priority,
-      }));
-    } catch (err) {
-      console.error(err);
-    }
-
-    setClassifyLoading(false);
-  };
+  const [loading, setLoading] = useState(true);
+  const [actionProcessing, setActionProcessing] = useState(false);
+  const [aiMessage, setAiMessage] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
+    if (!token) return;
 
-    const fetchData = async () => {
+    const fetchTicket = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/tickets`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const [ticketsRes, commentsRes] = await Promise.all([
+          fetch(`${BASE_URL}/tickets`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${BASE_URL}/tickets/${id}/comments`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        const data = await res.json();
-        const t = data.find((t: any) => t.id == id);
-        setTicket(t);
+        const ticketsData = await ticketsRes.json();
+        const ticketData = ticketsData.find((item: any) => item.id == id);
+        const commentsData = await commentsRes.json();
 
-        const cRes = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const cData = await cRes.json();
-        setComments(cData);
-      } catch (err) {
-        console.error(err);
+        setTicket(ticketData);
+        setComments(commentsData);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchTicket();
   }, [id]);
 
-  const addComment = async () => {
+  const handleAiReply = async () => {
+    if (!ticket) return;
+    setActionProcessing(true);
     const token = localStorage.getItem("token");
 
-    await fetch(`${BASE_URL}/tickets/${id}/comments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ message }),
-    });
-
-    setMessage("");
-
-    const res = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const data = await res.json();
-    setComments(data);
+    try {
+      const res = await fetch(`${BASE_URL}/tickets/${id}/ai-reply`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setAiMessage(data.reply);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setActionProcessing(false);
+    }
   };
 
-  if (!ticket) return <div className="p-6">Loading...</div>;
+  const handleAddComment = async () => {
+    if (!message.trim()) return;
+    setActionProcessing(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      await fetch(`${BASE_URL}/tickets/${id}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      const commentsRes = await fetch(`${BASE_URL}/tickets/${id}/comments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const commentsData = await commentsRes.json();
+      setComments(commentsData);
+      setMessage("");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setActionProcessing(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-4">
+        <div className="h-6 w-48 rounded-full bg-slate-200 animate-pulse"></div>
+        <div className="h-40 rounded-2xl bg-slate-200 animate-pulse"></div>
+      </div>
+    );
+  }
+
+  if (!ticket) {
+    return <div className="p-6 text-red-600">Ticket not found.</div>;
+  }
 
   return (
-    <div className="p-6 grid grid-cols-2 gap-6">
-      
-      {/* LEFT */}
-      <div className="border p-4 rounded-xl shadow">
-        <h2 className="text-xl font-bold">{ticket.title}</h2>
-        <p className="mt-2">{ticket.description}</p>
-
-        <div className="mt-4 text-sm space-y-1">
-          <p><b>Status:</b> {ticket.status}</p>
-          <p><b>Priority:</b> {ticket.priority}</p>
-          <p><b>Category:</b> {ticket.category}</p>
-          <p><b>Email:</b> {ticket.email}</p>
+    <main className="p-6 max-w-5xl mx-auto space-y-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold">{ticket.title}</h1>
+            <p className="text-sm text-slate-500">{ticket.email}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              {ticket.status}
+            </span>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              {ticket.priority || "Medium"}
+            </span>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              {ticket.category || "Uncategorized"}
+            </span>
+          </div>
         </div>
 
-        {/* 🧠 CLASSIFY BUTTON */}
-        <button
-          onClick={classifyTicket}
-          className="bg-green-600 text-white px-3 py-2 rounded-lg mt-4 hover:bg-green-700"
-        >
-          {classifyLoading ? "Analyzing..." : "🧠 Classify Ticket"}
-        </button>
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-medium text-slate-500">Created</p>
+            <p className="mt-2 text-sm text-slate-700">
+              {ticket.created_at ? new Date(ticket.created_at).toLocaleString() : "Unknown"}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-medium text-slate-500">Email</p>
+            <p className="mt-2 text-sm text-slate-700">{ticket.email}</p>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+          <h2 className="text-base font-semibold">Description</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-600">{ticket.description}</p>
+        </div>
       </div>
 
-      {/* RIGHT */}
-      <div className="border p-4 rounded-xl shadow flex flex-col">
-        <h3 className="text-lg font-bold mb-3">Comments</h3>
-
-        {/* 🤖 AI Reply */}
-        <button
-          onClick={generateAIReply}
-          className="bg-purple-600 text-white px-3 py-2 rounded-lg mb-2 flex items-center gap-2"
-        >
-          {aiLoading && (
-            <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
-          )}
-          {aiLoading ? "Generating..." : "🤖 Generate AI Reply"}
-        </button>
-
-        {/* Comments */}
-        <div className="flex-1 overflow-y-auto space-y-2">
-          {comments.map((c, i) => (
-            <div key={i} className="bg-blue-50 p-2 rounded text-sm">
-              {c.message}
+      <div className="grid gap-6 lg:grid-cols-[1.65fr_1fr]">
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Comments</h2>
+              <p className="text-sm text-slate-500">Latest conversation and AI responses.</p>
             </div>
-          ))}
-        </div>
+            <button
+              onClick={handleAiReply}
+              disabled={actionProcessing}
+              className="rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-60"
+            >
+              {actionProcessing ? "Working..." : "Generate AI Reply"}
+            </button>
+          </div>
 
-        {/* Input */}
-        <div className="mt-3 flex gap-2">
-          <input
-            className="border p-2 flex-1 rounded"
-            placeholder="🤖 AI suggested reply will appear here..."
+          <div className="mt-5 space-y-3">
+            {comments.length === 0 ? (
+              <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                No comments yet.
+              </div>
+            ) : (
+              comments.map((comment, index) => (
+                <div key={index} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                  {comment.message}
+                </div>
+              ))
+            )}
+          </div>
+
+          {aiMessage && (
+            <div className="mt-5 rounded-2xl bg-purple-50 p-4 text-sm text-purple-900">
+              <p className="font-semibold">AI Reply</p>
+              <p className="mt-2">{aiMessage}</p>
+            </div>
+          )}
+        </section>
+
+        <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold">Add a comment</h2>
+          <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            rows={5}
+            className="mt-3 w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm outline-none focus:border-black"
+            placeholder="Write your response or summary..."
           />
           <button
-            onClick={addComment}
-            className="bg-blue-500 text-white px-4 rounded"
+            onClick={handleAddComment}
+            disabled={actionProcessing || !message.trim()}
+            className="mt-4 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition disabled:opacity-60"
           >
-            Send
+            {actionProcessing ? "Sending..." : "Post comment"}
           </button>
-        </div>
-
-        {/* 🔁 Regenerate */}
-        <button
-          onClick={generateAIReply}
-          className="text-xs text-purple-600 mt-1 text-left"
-        >
-          🔁 Regenerate AI Reply
-        </button>
+        </aside>
       </div>
-    </div>
+    </main>
   );
 }
