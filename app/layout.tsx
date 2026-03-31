@@ -54,31 +54,8 @@ export default function RootLayout({
         </div>
 
         {/* 🔽 MAIN LAYOUT */}
-        <div className="flex flex-1">
-
-          {/* Sidebar */}
-          <div className="w-60 bg-gray-900 text-white p-5 hidden md:block">
-            <h2 className="text-lg font-bold mb-6">Dashboard</h2>
-
-            <nav className="space-y-2">
-              <Link href="/tickets">
-                <div className="p-2 rounded hover:bg-gray-700 cursor-pointer">
-                  🎫 Tickets
-                </div>
-              </Link>
-            </nav>
-
-            {/* Optional User Info */}
-            <div className="mt-10 text-sm text-gray-400">
-              Logged in as Admin
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1 bg-gray-100 p-6 overflow-y-auto">
-            {children}
-          </div>
-
+        <div className="flex-1 bg-gray-100 p-6 overflow-y-auto">
+          {children}
         </div>
 
       </body>
