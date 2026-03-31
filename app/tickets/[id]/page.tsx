@@ -16,12 +16,15 @@ export default function TicketDetail() {
   const [actionProcessing, setActionProcessing] = useState(false);
   const [aiMessage, setAiMessage] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
     setLoggedIn(Boolean(token));
+    setRole(storedRole);
     if (!token) {
       router.push("/login");
       return;
@@ -110,7 +113,13 @@ export default function TicketDetail() {
   };
 
   const handleBack = () => {
-    router.push("/tickets");
+    if (role === "admin") {
+      router.push("/admin/dashboard");
+    } else if (role === "agent") {
+      router.push("/agent/dashboard");
+    } else {
+      router.push("/tickets");
+    }
   };
 
   if (loading) {
@@ -134,7 +143,7 @@ export default function TicketDetail() {
             onClick={handleBack}
             className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            ← Back to tickets
+            ← Back to {role === "admin" ? "admin dashboard" : role === "agent" ? "agent dashboard" : "tickets"}
           </button>
         </div>
         {loggedIn ? (
