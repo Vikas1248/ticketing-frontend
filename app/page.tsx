@@ -23,8 +23,8 @@ export default function Home() {
                 <Link href="/tickets" className="inline-flex items-center justify-center rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 hover:bg-sky-400">
                   Browse tickets
                 </Link>
-                <Link href="/admin/login" className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20">
-                  Admin login
+                <Link href="/login" className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20">
+                  Login
                 </Link>
               </div>
             </div>

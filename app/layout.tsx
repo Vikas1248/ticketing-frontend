@@ -46,7 +46,7 @@ export default function RootLayout({
             <Link href="/tickets" className="hover:text-blue-600">
               Tickets
             </Link>
-            <Link href="/admin/login" className="hover:text-blue-600">
+            <Link href="/login" className="hover:text-blue-600">
               Login
             </Link>
           </div>
