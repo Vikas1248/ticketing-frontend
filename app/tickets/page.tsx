@@ -64,70 +64,67 @@ export default function TicketsPage() {
   }
 
   return (
-    <main className="p-6 max-w-5xl mx-auto">
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <main className="p-6 max-w-5xl mx-auto space-y-10">
+      <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-semibold">Tickets</h1>
           <p className="mt-1 text-sm text-slate-500">
-            {filteredTickets.length} results from {tickets.length} tickets.
+            Manage your tickets from one place.
           </p>
         </div>
 
         <input
           className="w-full max-w-sm rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-black"
-          placeholder="Search tickets by title..."
+          placeholder="Search tickets"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </div>
+      </section>
 
-      <div className="mb-10 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold">Create a support ticket</h2>
-        <p className="mt-2 text-sm text-slate-500">
-          Submit a new ticket directly from your authenticated dashboard.
-        </p>
+      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold">Create a ticket</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Submit a new support request without leaving the page.
+            </p>
+          </div>
+        </div>
         <div className="mt-6">
           <TicketForm />
         </div>
-      </div>
+      </section>
 
-      {filteredTickets.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-slate-600">
-          No tickets found. Try a different search term.
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredTickets.map((ticket) => (
-            <Link
-              key={ticket.id}
-              href={`/tickets/${ticket.id}`}
-              className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-            >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold">{ticket.title}</h2>
-                  <p className="mt-1 text-sm text-slate-500 line-clamp-2">
-                    {ticket.description}
-                  </p>
-                </div>
+      <section>
+        {filteredTickets.length === 0 ? (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-slate-600">
+            No tickets found. Try a different search term.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredTickets.map((ticket) => (
+              <Link
+                key={ticket.id}
+                href={`/tickets/${ticket.id}`}
+                className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold">{ticket.title}</h2>
+                    <p className="mt-1 text-sm text-slate-500 line-clamp-2">
+                      {ticket.description}
+                    </p>
+                  </div>
 
-                <div className="flex flex-wrap gap-2">
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                     {ticket.status}
                   </span>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                    {ticket.priority || "Medium"}
-                  </span>
                 </div>
-              </div>
-              <div className="mt-4 flex flex-col gap-2 text-sm text-slate-500 sm:flex-row sm:justify-between">
-                <span>{ticket.email}</span>
-                <span>{ticket.created_at ? new Date(ticket.created_at).toLocaleDateString() : ""}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }

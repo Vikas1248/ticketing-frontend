@@ -134,45 +134,34 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto max-w-6xl space-y-8">
+        <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Admin SaaS Dashboard</p>
+            <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Admin dashboard</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
               Support tickets at a glance
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Review incoming requests, prioritize active work, and keep response times low.
-            </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("role");
-                router.push("/admin/login");
-              }}
-              className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              Logout
-            </button>
-            <Link
-              href="/tickets"
-              className="rounded-full border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              View public tickets
-            </Link>
-          </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              router.push("/login");
+            }}
+            className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Logout
+          </button>
         </div>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Total requests</p>
+            <p className="text-sm text-slate-500">Total tickets</p>
             <p className="mt-3 text-3xl font-semibold text-slate-900">{stats.total}</p>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Open tickets</p>
+            <p className="text-sm text-slate-500">Open</p>
             <p className="mt-3 text-3xl font-semibold text-emerald-700">{stats.open}</p>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -185,29 +174,27 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-black"
-              placeholder="Search by title or requester email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <div className="flex flex-wrap gap-3">
-              {STATUS_OPTIONS.map((option) => (
-                <button
-                  key={option}
-                  onClick={() => setStatusFilter(option)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                    statusFilter === option
-                      ? "bg-slate-900 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
+        <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <input
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-black"
+            placeholder="Search by title or requester"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div className="flex flex-wrap gap-2">
+            {STATUS_OPTIONS.map((option) => (
+              <button
+                key={option}
+                onClick={() => setStatusFilter(option)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  statusFilter === option
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                {option}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -219,31 +206,21 @@ export default function Dashboard() {
         ) : (
           <div className="grid gap-4 xl:grid-cols-2">
             {filteredTickets.map((ticket) => (
-              <div
-                key={ticket.id}
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-              >
+              <div key={ticket.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
                       Ticket #{ticket.id}
                     </p>
-                    <h2 className="mt-2 text-xl font-semibold text-slate-900">
-                      {ticket.title}
-                    </h2>
+                    <h2 className="mt-2 text-xl font-semibold text-slate-900">{ticket.title}</h2>
                     <p className="mt-2 text-sm leading-6 text-slate-600 line-clamp-2">
                       {ticket.description}
                     </p>
                   </div>
 
-                  <div className="flex flex-col items-start gap-3 sm:items-end">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[ticket.status] || "bg-slate-100 text-slate-700"}`}>
-                      {ticket.status}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {ticket.created_at ? new Date(ticket.created_at).toLocaleDateString() : "No date"}
-                    </span>
-                  </div>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[ticket.status]}`}>
+                    {ticket.status}
+                  </span>
                 </div>
 
                 <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -262,7 +239,7 @@ export default function Dashboard() {
                       href={`/tickets/${ticket.id}`}
                       className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                     >
-                      View details
+                      View
                     </Link>
                   </div>
                 </div>
