@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
 
 export default function TicketDetail() {
   const { id } = useParams();
+  const router = useRouter();
 
   const [ticket, setTicket] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
@@ -14,12 +15,17 @@ export default function TicketDetail() {
   const [loading, setLoading] = useState(true);
   const [actionProcessing, setActionProcessing] = useState(false);
   const [aiMessage, setAiMessage] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
-    if (!token) return;
+    setLoggedIn(Boolean(token));
+    if (!token) {
+      router.push("/login");
+      return;
+    }
 
     const fetchTicket = async () => {
       try {
@@ -32,9 +38,11 @@ export default function TicketDetail() {
           }),
         ]);
 
+        if (!ticketsRes.ok) throw new Error("Failed to load ticket");
+
         const ticketsData = await ticketsRes.json();
         const ticketData = ticketsData.find((item: any) => item.id == id);
-        const commentsData = await commentsRes.json();
+        const commentsData = commentsRes.ok ? await commentsRes.json() : [];
 
         setTicket(ticketData);
         setComments(commentsData);
@@ -46,7 +54,7 @@ export default function TicketDetail() {
     };
 
     fetchTicket();
-  }, [id]);
+  }, [id, router]);
 
   const handleAiReply = async () => {
     if (!ticket) return;
@@ -95,6 +103,16 @@ export default function TicketDetail() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    router.push("/login");
+  };
+
+  const handleBack = () => {
+    router.push("/tickets");
+  };
+
   if (loading) {
     return (
       <div className="p-6 space-y-4">
@@ -110,6 +128,25 @@ export default function TicketDetail() {
 
   return (
     <main className="p-6 max-w-5xl mx-auto space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <button
+            onClick={handleBack}
+            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            ← Back to tickets
+          </button>
+        </div>
+        {loggedIn ? (
+          <button
+            onClick={handleLogout}
+            className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Logout
+          </button>
+        ) : null}
+      </div>
+
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>

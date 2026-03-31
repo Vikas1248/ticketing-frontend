@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import TicketForm from "../components/TicketForm";
 
@@ -11,11 +12,15 @@ export default function TicketsPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
+    setLoggedIn(Boolean(token));
+
     if (!token) {
       setError("Please login to view tickets.");
       setLoading(false);
@@ -50,6 +55,12 @@ export default function TicketsPage() {
     [search, tickets]
   );
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    router.push("/login");
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -73,12 +84,22 @@ export default function TicketsPage() {
           </p>
         </div>
 
-        <input
-          className="w-full max-w-sm rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-black"
-          placeholder="Search tickets"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="flex flex-col items-end gap-3">
+          <input
+            className="w-full max-w-sm rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-black"
+            placeholder="Search tickets"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {loggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              Logout
+            </button>
+          ) : null}
+        </div>
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
