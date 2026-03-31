@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import TicketForm from "../components/TicketForm";
 
 const BASE_URL = "https://ticketing-backend-i02l.onrender.com";
 
@@ -78,6 +79,16 @@ export default function TicketsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+      </div>
+
+      <div className="mb-10 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold">Create a support ticket</h2>
+        <p className="mt-2 text-sm text-slate-500">
+          Submit a new ticket directly from your authenticated dashboard.
+        </p>
+        <div className="mt-6">
+          <TicketForm />
+        </div>
       </div>
 
       {filteredTickets.length === 0 ? (
