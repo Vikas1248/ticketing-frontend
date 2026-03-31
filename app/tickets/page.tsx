@@ -15,9 +15,7 @@ export default function TicketsPage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
+  const fetchTickets = async () => {
     const token = localStorage.getItem("token");
     setLoggedIn(Boolean(token));
 
@@ -27,24 +25,30 @@ export default function TicketsPage() {
       return;
     }
 
-    fetch(`${BASE_URL}/tickets`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load tickets");
-        return res.json();
-      })
-      .then((data) => {
-        setTickets(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Failed to load tickets.");
-        setLoading(false);
+    try {
+      const res = await fetch(`${BASE_URL}/tickets`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (!res.ok) {
+        throw new Error("Failed to load tickets");
+      }
+
+      const data = await res.json();
+      setTickets(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load tickets.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    fetchTickets();
   }, []);
 
   const filteredTickets = useMemo(
@@ -112,7 +116,7 @@ export default function TicketsPage() {
           </div>
         </div>
         <div className="mt-6">
-          <TicketForm />
+          <TicketForm onCreated={fetchTickets} />
         </div>
       </section>
 

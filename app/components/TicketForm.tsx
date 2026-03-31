@@ -1,7 +1,11 @@
 "use client";
 import { useState } from "react";
 
-export default function TicketForm() {
+interface TicketFormProps {
+  onCreated?: () => void;
+}
+
+export default function TicketForm({ onCreated }: TicketFormProps) {
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -12,11 +16,18 @@ export default function TicketForm() {
     e.preventDefault();
 
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const res = await fetch("https://ticketing-backend-i02l.onrender.com/tickets", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify(form),
       });
 
@@ -26,6 +37,7 @@ export default function TicketForm() {
       alert("✅ Ticket Created Successfully!");
 
       setForm({ title: "", description: "", email: "" });
+      onCreated?.();
     } catch (error) {
       console.error(error);
       alert("❌ Error creating ticket");
